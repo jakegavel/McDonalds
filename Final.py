@@ -8,7 +8,6 @@ Description:  In this program the dataset for McDonalds stores is read in and us
 The user is asked a variety of questions to help provide a base for the map and then the map can be interacted with to
 see the features of the store and contact information about the store.
 """
-echo "backend: TkAgg" >> ~/.matplotlib/matplotlibrc
 import pandas as pd
 import matplotlib.pyplot as plt
 import pydeck as pdk
