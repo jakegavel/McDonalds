@@ -1,0 +1,344 @@
+---
+title: "Take Home Final"
+author: "Jacob Gavel"
+date: "6/28/2021"
+output:
+  word_document: default
+  html_document: default
+---
+“As a Bentley student, I promise to act honorably, adhering to both the letter and spirit of Bentley’s academic integrity system (https://catalog.bentley.edu/undergraduate/academic-policies-procedures/academic-integrity/). I will neither take advantage of my classmates nor betray the trust of my professors. My work will be honest and transparent, and I will hold myself and my peers accountable to the highest ethical standards. I certify that the work on this project was completed according to the stated guidelines. The work on this project was not shared with any other MA 252 students and it belongs to me only.”: Jacob Gavel
+
+## Abstract
+
+This data set was created to analyze the effect on the price of computers as the technological features of the devices continues to improve. The data was collected through a cross-section study conducted from 1993 to 1995. The price of different computers were collected as well as their speed, size of hard drive, ram, screen size, whether it includes a multimedia kit, and whether its from a premium firm. The primary purpose of this data set was to see how changing technological advances in computers affects the price. There were 6259 observations that were collected on this topic and the data would have been found through information provided to consumers by the manufacturer. 
+
+```{r}
+setwd("/Users/jacobgavel/OneDrive - Bentley University/MA 252")
+dat <- read.csv("Computers.csv")
+price <- dat$price
+speed <- dat$speed
+hd <- dat$hd
+ram <- dat$ram
+screen <- dat$screen
+multi <- dat$multi
+premium <- dat$premium
+```
+
+## Data Characteristics
+
+### Variable histograms
+
+```{r}
+hist(speed)
+hist(hd)
+hist(ram)
+hist(screen)
+barplot(prop.table(table(multi)), main = "Frequency plot of multi")
+barplot(prop.table(table(premium)), main = "Frequency plot of premium")
+```
+
+The lack of variation in values for each values leads to the histograms of the data not showing any very strong patterns. There is no pattern present in the speed histogram but a slight right skewed pattern for hd, ram, and screen. The other two plots are frequency plots for the two qualitative variables, premium and multi. The plots show that most of the observations don't come with a multimedia kit while most of the observations were from premium firms.
+
+### Variable Plots
+```{r}
+library(ggplot2)
+ggplot(dat, aes(x = speed, y = price)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = lm, se = FALSE)
+ggplot(dat, aes(x = hd, y = price)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = lm, se = FALSE)
+ggplot(dat, aes(x = ram, y = price)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = lm, se = FALSE)
+ggplot(dat, aes(x = screen, y = price)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = lm, se = FALSE)
+```
+
+The four ggplot all show similar patterns that there is a positive relationship between the four quantitative response variables and price. However, only the data for hd shows a true spread of explanatory values as the other three variables show a plot that is a collection of vertical lines.
+
+### Correlation Matrix
+
+```{r}
+dat_new <- subset(dat, select = -c(price, premium, multi))
+pairs(dat_new)
+dat_cor <- cor(dat_new)
+dat_cor
+```
+
+The correlation matrix shows little correlation between the explanatory variables which is a good sign for the model not having multicollinearity. However, it should still be further investigated as hd and ram do have a high correlation coefficient of 0.78. All other coefficients are very low and show a lack of correlation between explanatory variables.
+
+### Summary Statistics
+```{r}
+sapply(dat, class)
+summary(dat)
+```
+
+In this model, there are six explanatory variables and one response variable of price. There  are four quantitative variables that are speed, hd, ram, and screen. There  are two qualitative variables that are multi and premium. 
+
+### Model with all Variables
+```{r}
+ymulti <- ifelse(multi == "yes", 1, 0)
+ypremium <- ifelse(premium == "yes", 1, 0)
+model <- lm(price ~ speed + hd + ram + screen + ymulti + ypremium)
+```
+
+For this model, there are two qualitative variables which means dummy variables must be set. Both qualitative variables only have two levels of either yes or no. For both variables the base level was set as no and two dummy variables were made for when either multi or premium are yes.
+
+```{r}
+summary(model)
+anova(model)
+```
+
+Based on the summary and anova table all variables pass their respective tests and the F test of the model as a whole passes on all levels. This means that this is a reasonable model to use for analysis. The only area of concern that is apparent from the summary and anova table is that the model has a low R-squared value which means there could be a large amount of unexplained variability which may lead to inaccurate estimates of price.
+
+### Multicollinearity
+
+```{r}
+library(car)
+vif(model)
+```
+
+When initially analyzing the correlation between the variables there was strong correlation between ram and hd which raised suspicion of potential multicollinearity in the model. However, upon further analysis using vif testing, the vif values for all the variables were much less than 10 and were close to 1 which means that there is not multicollinearity in this model.
+
+### Influential Points
+
+#### Outliers
+
+```{r}
+rstandard(model)[abs(rstandard(model))>3]
+```
+
+This data set has 103 outliers, to find these outliers a test was run to report all the values that were at least three standard deviations away from the mean. These points stretch the model vertically and should be further checked to see if they are influential and affecting the model enough to need to be removed.
+
+#### Leverage Points
+
+```{r}
+plot(hatvalues(model))
+which.max(hatvalues(model))
+```
+
+The value from the hat value test that produced the largest value was at the 3784th observation and this value can be determined to be a leverage point. When examining the plot of the hat values there are two other points very close in value to the largest leverage point. This means there are two more potential leverage points at about the 4500th and 5900th observation. These points stretch the model horizontally and should be further checked to see if they are influential and affecting the model enough to need to be removed.
+
+
+#### Test for Influence
+
+```{r}
+plot(model, which=4, col=c("blue")) 
+```
+
+As can be seen from the graph of the Cook's distance plot there are three potential influential point that R has flagged at the 901th, 1102nd, and 3784th observations. However, upon closer examination none of their Cook's distances exceed 1. Therefore there are no infuential points in this data set and all observations in the set can be used.
+
+## Model
+
+$\hat{y} = 405.89 + 5.63\hat{X_1} - 0.53\hat{X_2} + 79.27\hat{X_3} + 99.94\hat{X_4} - 34.35\hat{X_5} - 409.30\hat{X_6}$
+
+## Justification
+
+### L.I.N.E
+
+#### Linearity
+
+```{r}
+plot(model, which = 1, col=c("blue"))
+```
+
+The Rssiduals versus fitted plot shows that the data creates a relatively horizontal however this is with a residual scale that is very large. But, the spread of the data does not show any of the patterns that would lead to a necessity to transform the data and the response variable is not close to zero which would show Poisson pattern. 
+
+#### Independent
+
+These data sets are independent of one another as they are seperate products from different years and makers.
+
+#### Normality
+
+```{r}
+plot(model, which = 2, col=c("blue"))
+```
+
+The normal Q-Q plot shows a pattern of a relatively linear line which means that the model passes the normality assumption.
+
+#### Equal Variance
+
+```{r}
+plot(model, which = 3, col=c("blue"))
+```
+
+The scale-location plot shows a relatively horizontal line and a spread that doesn't show any sort of pattern to it. For this reason it may not be advantagous to do any transformations on this data because both the scale-locatin plot and the residual versus fitted plot showed no patterns and the lines produced from the plot were relatively horizontal.
+
+### Assumptions
+
+Based on these three plots and the fact that the data is independent, the model passes all the necessary model assumptions and is a viable model for further analysis.
+
+### Root MSE and R-Squared
+
+```{r}
+summary(model)
+410.2 / mean(price)
+```
+
+The Residual standard error or root MSE of this model is 410.2. This may appear to be a very large value and could potentially raise suspicions about large variability in the model. However, when this value is divided by the mean of the response variable, price, it produces a value of 0.18 which is less than 0.2. This means that even though 410.2 might appear like a large standard error, when taken in the context of the problem it is quite small and this still remain a good model for analysis and forecasting. As can also be seen in the summary, the model has an adjusted R-squared value of 0.50. This value isn't a very high value for an adjusted R-squared and for this reason, other models should be analyzed  to potentially find a strong fitting model.
+
+### T tests
+
+$H_0$: $\beta_1$ = 0
+$H_a$: $\beta_1$ $\neq$ 0
+
+t stat: 21.005
+
+p-value: 0.000003
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that $\beta_1$ is not equal to zero. This means that given the other variables in the model, speed is a significant predictor of price.
+
+$H_0$: $\beta_2$ = 0
+$H_a$: $\beta_2$ $\neq$ 0
+
+t stat: -15.752
+
+p-value: ≈ 0
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that $\beta_2$ is not equal to zero. This means that given the other variables in the model, hd is a significant predictor of price.
+
+$H_0$: $\beta_3$ = 0
+$H_a$: $\beta_3$ $\neq$ 0
+
+t stat: 53.567
+
+p-value: ≈ 0
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that $\beta_3$ is not equal to zero. This means that given the other variables in the model, ram is a significant predictor of price.
+
+$H_0$: $\beta_4$ = 0
+$H_a$: $\beta_4$ $\neq$ 0
+
+t stat: 16.811
+
+p-value: ≈ 0
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that $\beta_4$ is not equal to zero. This means that given the other variables in the model, screen is a significant predictor of price.
+
+$H_0$: $\beta_5$ = 0
+$H_a$: $\beta_5$ $\neq$ 0
+
+t stat: -2.266
+
+p-value: 0.0235
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that $\beta_5$ is not equal to zero. This means that given the other variables in the model, multi is a significant predictor of price.
+
+$H_0$: $\beta_6$ = 0
+$H_a$: $\beta_6$ $\neq$ 0
+
+t stat: -22.744
+
+p-value: ≈ 0
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that $\beta_6$ is not equal to zero. This means that given the other variables in the model, premium is a significant predictor of price.
+
+All variables pass the t test and can be determined that they are all significant predictors of price at the 5% level.
+
+### Alternative Models
+
+#### Transformation
+
+```{r}
+plot(model, which = 1, col = c("blue"))
+plot(model, which = 3, col = c("blue"))
+```
+
+Based on the residual versus fitted as well as the scale location plot the data shows no patterns in its spread. In order for transformation to be an appropriate method for this model a pattern would need to be present, instead it shows even spread. Therefore transformations will not be applied to this model because it does not appear that it will improve the strength or significance of the model.
+
+#### Interaction
+
+```{r}
+model_int <- lm(price ~ speed + hd + ram + screen + ymulti + ypremium + speed:hd + speed:ram + speed:screen + speed:ymulti + speed:ypremium + hd:ram + hd:screen + hd:ymulti + hd:ypremium + ram:screen + ram:ymulti + ram:ypremium + screen:ymulti + screen:ypremium + ymulti:ypremium)
+summary(model_int)
+anova(model_int)
+((1051937660 - 876058213)/15)/ (876058213/(6259 - 22))
+pf(83.477, 15, 22, lower.tail = FALSE)
+model_int1 <- lm(price ~ speed + hd + ram + screen + ymulti + ypremium + speed:hd + speed:ymulti + speed:ypremium + hd:ram + hd:screen + hd:ymulti + hd:ypremium + ram:screen + ram:ymulti + ram:ypremium + screen:ymulti + screen:ypremium)
+summary(model_int1)
+anova(model_int1)
+((1051937660 - 878922499)/12)/ (878922499/(6259 - 19))
+pf(102.362, 15, 22, lower.tail = FALSE)
+```
+
+$\hat{y}= -2924.6 + 10.54\hat{X_1} + 6.05\hat{X_2} - 32.18\hat{X_3} + 278.03\hat{X_4} + 727.87\hat{X_5} + 2062.64\hat{X_6} - 0.01\hat{X_1}\hat{X_2} - 0.66\hat{X_1}\hat{X_5} - 1.96\hat{X_1}\hat{X_6} - 0.03\hat{X_2}\hat{X_3} - 0.22\hat{X_2}\hat{X_4} - 0.37\hat{X_2}\hat{X_5} - 2.56\hat{X_2}\hat{X_6} + 4.84\hat{X_3}\hat{X_4} + 9.31\hat{X_3}\hat{X_5} + 58.18\hat{X_3}\hat{X_6} - 43.17\hat{X_4}\hat{X_5} - 139.47\hat{X_4}\hat{X_6}$
+
+When an interaction model is created with interaction between all variables, the model produces an adjusted R-squared that is higher than the model with only the main effects. However, not all of the interaction estimates were found to be significant and should not be included in the model. Once these values are removed a new model is made and all the interaction terms are now significant.
+
+$H_0$: $\beta_7$ = $\beta_8$ = $\beta_9$ = $\beta_10$ = $\beta_11$ = $\beta_12$ = $\beta_13$ = $\beta_14$ = $\beta_15$ = $\beta_16$ = $\beta_17$ = $\beta_18$ = 0
+$H_a$: At least one beta does not equal zero
+
+test stat: f stat = 102.362
+
+p-value: ≈ 0
+
+Since this p-value is much less than the significance level of 0.05 we reject $H_0$ and can conclude that at least one beta is not equal to zero. This means that it can be concluded that the interaction terms contribute to the prediction of price and the explanatory variables interact. Therefore this alternative model with interaction is significant and should be considered when doing further analysis on the data. However, the interaction model, as can be seen in the summary, only slightly raises the adjusted R-squared value when compared to the main effects model. This slight increase does not appear  to be substantial enough when considering the increased risk of type one error when adding more variables to a model. This risk to reward trade off that occurs when considering this interaction model is something that is important to consider when choosing a model and leads to the main effects model appearing like a safer option.
+
+#### Stepwise Model Building
+
+##### Backwards
+
+```{r}
+summary(model_int)
+model_int <- update(model_int,.~. -speed)
+summary(model_int)
+model_int <- update(model_int,.~. -ymulti:speed)
+summary(model_int)
+model_int <- update(model_int,.~. -ymulti:ypremium)
+summary(model_int)
+model_int <- update(model_int,.~. -ram)
+summary(model_int)
+```
+
+Above shows the backwards method of model building for the complete model. This makes all terms pass the t test but it may not be an advisable strategy for a model for analysis since this process removes multiple main effects which means the corresponding interaction betas must also be removed.
+
+```{r}
+summary(model)
+```
+
+There is no backwards method necessary for the reduced model of only the main effects because all of the betas already pass the t tests.
+
+##### Forwards
+```{r}
+options(scipen = 999)
+add1(lm(price~1), test = "F", scope=~ speed + hd + ram + screen + ymulti + ypremium)
+add1(lm(price~speed), test = "F", scope=~ speed + hd + ram + screen + ymulti + ypremium)
+add1(lm(price~speed + hd), test = "F", scope=~ speed + hd + ram + screen + ymulti + ypremium)
+add1(lm(price~speed + hd + ram), test = "F", scope=~ speed + hd + ram + screen + ymulti + ypremium)
+add1(lm(price~speed + hd + ram + screen), test = "F", scope=~ speed + hd + ram + screen + ymulti + ypremium)
+add1(lm(price~speed + hd + ram + screen + ypremium), test = "F", scope=~ speed + hd + ram + screen + ymulti + ypremium)
+```
+
+The forwards method, like the backwards method for the reduced model results in all the main effects being shown to be the parsimonious model for this data set.
+
+##### Best Subsets
+
+```{r}
+library(leaps)
+model_price <- regsubsets(price ~ ., data = dat, nvmax = 6)
+summary(model_price)
+```
+
+The subset method, like the backwards and forwards method for the reduced model results in all the main effects being shown to be the parsimonious model for this data set.
+
+These three tests only prove to further confirm the information that was determined beforehand. That the main effect model that was intitially created is a significant one and no variables raise any suspicion for negatively impacting the model.
+
+## Interpretation
+
+This model uses the speed, hard drive size, ram, screen size, whether it has a multimedia kit, and whether its from a premium firm and multiplies those values by the calculated betas from the model to produce an estimated price for a computer with the given values for each variables. The intercept or $\beta_0$ for this model is 405.89 but it does not have an interpretation in the context of this problem. The intercept would be that the price of computer with no speed, hard drive, ram, or screen size and without a mutlimedia kit and not from a premium firm will have a price of 405.89 dollars. However, these variables being zero is not a possibility for a computer so the interpretation of intercept for this problem is not relevant. The estimate for the speed variable is 5.626 which is the value of $\beta_1$. This can be interpreted as whenever the speed of a computer increases by 1 MHz, the price of that computer will increase by 5.63 dollars. The estimate for the hd variable is -0.53 which is the value of $\beta_2$. This can be interpreted as whenever the size of the hard drive increases by 1 mb, the price of that computer will decrease by 0.53 dollars. The estimate for the ram variable is 79.27 which is the value of $\beta_3$. This can be interpreted as whenever the ram of a computer increases by 1 mb, the price of that computer will increase by 79.27 dollars. The estimate for the screen variable is 99.94 which is the value of $\beta_4$. This can be interpreted as whenever the screen size of a computer increases by 1 inch, the price of that computer will increase by 99.94 dollars. The interpretation for multi and premium are slightly different because they are qualitative variables. The estimate for the multi variable is -34.35 which is the value of $\beta_5$. This value can be interpreted as the difference in the mean price of computers with a mutlimedia kit and those without. This means that computers without a multimedia kit cost 34.35 dollars more than computers that have a multimedia kit. The estimate for the premium variable is -409.30 which is the value of $\beta_6$. This value can be interpreted as the difference in the mean price of computers from a premium firm and those that aren't. This means that computers not from premium firms cost 409.30 dollars more than computers that are from premium firms. Using these estimates of the betas as well as desired values for the six variables will allow for the price of a computer with the same perameters as the values inputted for the variables to be accurately estimated.
+
+## Conclusion
+
+### Summary
+
+For a given computer with a set speed, hard drive size, ram, screen size, and whether it has a multimedia kit and is from a premium firm, the price of that computer can be estimated through the created model. Through the many t and f tests that can be conducted on the individual variables as well as the model as a whole it can be proven to be significant. Also, the model passes all the necessary model assumptions such as linearity, independence, normality, and equal variance meaning that it is a usable model. None of the models that were produced, main and alternative, have a high R-squared values which brings into question the data that was collected but that can be addressed in a future study. The alternative models that were created were only for interaction as transformation had been previous ruled to be not a viable option forthis model. The interaction model that was  produced was  found to pass  relavent f tests and can be concluded to be a significant alternative model and means that the explanatory variables interact with one another. Through the models that  were created predictions and future forecasting can be made that will allow for accurate prediction of price based on the  explanatory variables of the data set.  
+
+### Future Investigation
+
+This study provided good insight into the world of technology but it is slightly outdated and there are some new areas that could be invesigated. For instance, there is a new and important use for computers outside work and personal use. Many people now will need a high functioning computer for playing video games. This can be included as another qualitative variable that has two levels of either yes or no for if it is advertised as a gaming computer or not. In the time since the study, laptops have become much more main stream and have even evolved into different kinds of laptops. To account for this a type variable can be used and it can have three possible values: desktop, laptop, and 2 in 1. This would be another qualitative variable and would require 2 dummy variables to account for all three levels. A final and very important variable is the operating system of the computer. Since companies are so competitive of one another they do not share operating systems and it leads to a variety of system. The levels for this variable would require more research as there are many different operating systems but this would be another qualitative variable.
+
+## Refrences
+
+Stengos, T. and E. Zacharias (2005) “Intertemporal pricing and price discrimination : a semiparametric hedonic analysis of the personal computer market”, Journal of Applied Econometrics.
