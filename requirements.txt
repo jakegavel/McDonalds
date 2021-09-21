@@ -1,2 +1,2 @@
 matplotlib==3.4.1
-chmod 755 mcdonalds_clean1.csv
+chown admin mcdonalds_clean1.csv
