@@ -1,2 +1,1 @@
 matplotlib==3.4.1
-chown admin mcdonalds_clean1.csv
