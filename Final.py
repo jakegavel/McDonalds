@@ -9,6 +9,7 @@ The user is asked a variety of questions to help provide a base for the map and 
 see the features of the store and contact information about the store.
 """
 import pandas as pd
+import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as sl
 import numpy as np
