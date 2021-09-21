@@ -14,6 +14,7 @@ import pydeck as pdk
 import streamlit as sl
 import numpy as np
 import random
+import csv
 
 file = "mcdonalds_clean1.csv"
 dat = pd.read_csv(file)
