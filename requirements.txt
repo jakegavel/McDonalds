@@ -1,2 +1,2 @@
 matplotlib==3.4.1
-chown jgavel:admin mcdonaldsclean_1.csv
+chown jgavel:admin mcdonalds_clean1.csv
