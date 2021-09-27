@@ -16,7 +16,7 @@ import numpy as np
 import random
 import csv
 
-dat = open("mcdonalds_clean1.csv", "r+")
+dat = open("mcdonalds_clean1.csv", "w+")
 
 sl.title("McDonald's Store Finder",)
 sl.title("Store Locator")
