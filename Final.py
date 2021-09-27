@@ -16,7 +16,7 @@ import numpy as np
 import random
 import csv
 
-dat = open("mcdonalds_clean1.csv", "w+")
+dat = pd.read_csv("mcdonalds_clean1.csv")
 
 sl.title("McDonald's Store Finder",)
 sl.title("Store Locator")
