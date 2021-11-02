@@ -98,7 +98,7 @@ def variants():
 
     dat["Rank"] = rank
     df = dat.dropna()
-    df = pd.df.to_csv(path_or_buf = 'mcdonalds_clean1.csv', index=False)
+    df = pd.DataFrame.to_csv(df, index=False)
 def maps(state_select):
 
     sl.title("McDonald's In Your Area")
