@@ -129,7 +129,7 @@ def maps(state_select):
             get_position='[lon, lat]',
             get_weight= 'Rank > 0 ? Rank: 0')],
         map_style='mapbox://styles/mapbox/light-v9',
-        mapbox_key= 'pk.eyJ1IjoiamdhdmVsIiwiYSI6ImNraXM0bnRxNDI5d2gydHBkamVucm16YjUifQ.MAPFIRT_g4Sl9sLv818KPg',
+        mapbox_key= 'sk.eyJ1IjoiamdhdmVsIiwiYSI6ImNrdmlhM3kxOGI4N3MycHQ5anlnbWJ0bWIifQ.id1yx7ChFUZkYOXAWhx7PQ',
         initial_view_state=pdk.ViewState(
             latitude=np.average(dat['lat'][dat['state'] == state_select]),
             longitude=np.average(dat['lon'][dat['state'] == state_select]),
