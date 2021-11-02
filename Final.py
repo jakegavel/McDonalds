@@ -2,7 +2,6 @@
 Name: Jacob Gavel
 CS230: SN5
 Data: McDonald's
-URL: Link to your web application online (see extra credit)
 
 Description:  In this program the dataset for McDonalds stores is read in and used to create maps for the user.
 The user is asked a variety of questions to help provide a base for the map and then the map can be interacted with to
