@@ -2,20 +2,22 @@
 Name: Jacob Gavel
 CS230: SN5
 Data: McDonald's
+URL: Link to your web application online (see extra credit)
 
 Description:  In this program the dataset for McDonalds stores is read in and used to create maps for the user.
 The user is asked a variety of questions to help provide a base for the map and then the map can be interacted with to
 see the features of the store and contact information about the store.
 """
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as sl
 import numpy as np
 import random
-import csv
 
-dat = pd.read_csv("mcdonalds_clean1.csv")
+file = "mcdonalds_clean1.csv"
+dat = pd.read_csv(file)
 
 sl.title("McDonald's Store Finder",)
 sl.title("Store Locator")
@@ -96,6 +98,7 @@ def variants():
 
     dat["Rank"] = rank
     df = dat.dropna()
+    df.to_csv('mcdonalds_clean1.csv',sep=',', index=False)
 def maps(state_select):
 
     sl.title("McDonald's In Your Area")
@@ -106,7 +109,11 @@ def maps(state_select):
     dat["icon_data"] = ""
     for i in dat.index:
         dat["icon_data"][i] = icon_data
-
+    loc = 0
+    for vals in dat['city']:
+        if vals == city_select:
+            break
+        loc += 1
     sl.pydeck_chart(pdk.Deck(
     layers=[
             pdk.Layer(
@@ -128,11 +135,11 @@ def maps(state_select):
             get_position='[lon, lat]',
             get_weight= 'Rank > 0 ? Rank: 0')],
         map_style='mapbox://styles/mapbox/light-v9',
-        mapbox_key= 'sk.eyJ1IjoiamdhdmVsIiwiYSI6ImNrdmlhM3kxOGI4N3MycHQ5anlnbWJ0bWIifQ.id1yx7ChFUZkYOXAWhx7PQ',
+        mapbox_key= 'pk.eyJ1IjoiamdhdmVsIiwiYSI6ImNraXM0bnRxNDI5d2gydHBkamVucm16YjUifQ.MAPFIRT_g4Sl9sLv818KPg',
         initial_view_state=pdk.ViewState(
-            latitude=np.average(dat['lat'][dat['state'] == state_select]),
-            longitude=np.average(dat['lon'][dat['state'] == state_select]),
-            zoom=7, pitch=20),
+            latitude=dat['lat'][loc],
+            longitude=dat['lon'][loc],
+            zoom=11, pitch=20),
         tooltip={
             "html": "Store Number:<br/> <b>{storeNumber}</b> <br/> City and State:<br/> <b>{city}</b> {state} </b>, {zip}"
             " </b> <br/> Store URL:<br/> <b>{storeUrl}</b> <br/> Store Phone number:<br/> <b>{phone}</b>"
