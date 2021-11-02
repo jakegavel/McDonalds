@@ -185,7 +185,7 @@ def plot(state_select, rank):
     sl.subheader(f"There {pronoun2} {len(min_state)} store{s2} with the lowest rating of {min_rank}, one such store is in {min_city[rand_selects]}, {min_state[rand_selects]}")
 
     total = 0
-    count = 0
+    count = 1
     for vals in rank:
         total += vals
         count += 1
