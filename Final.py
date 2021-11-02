@@ -144,7 +144,8 @@ def maps(state_select):
             " </b> <br/> Store URL:<br/> <b>{storeUrl}</b> <br/> Store Phone number:<br/> <b>{phone}</b>"
             "</b> <br/> Rating:<br/> <b>{Rank}<b> out of 10 </b> <br/>",
             "style": {"backgroundColor": 'crimson',
-            "color": "white"}}))
+            "color": "white"
+                     }}))
 
 def plot(state_select, rank):
     sl.title("Data Analysis")
